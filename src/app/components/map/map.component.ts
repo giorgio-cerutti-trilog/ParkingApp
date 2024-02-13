@@ -1,6 +1,7 @@
 import { AfterContentChecked, AfterContentInit, AfterViewInit, Component, OnInit, SimpleChange, SimpleChanges, ViewChild } from '@angular/core';
 import { GoogleMap, MapInfoWindow, MapMarker, MapDirectionsRenderer, MapDirectionsService } from '@angular/google-maps';
 import { Observable, map } from 'rxjs';
+import { ConfigService } from 'src/app/services/config.service';
 import { GeoLocationService } from 'src/app/services/geo-location.service';
 
 
@@ -57,7 +58,12 @@ export class MapComponent implements AfterViewInit {
   constructor(
     private mapDirectionsService: MapDirectionsService,
     private locationService: GeoLocationService,
+    private configService: ConfigService
   ) {  
+
+    this.configService.loadData().then(res => {
+      this.markers = res;
+    
       this.locationService.watchPosition().subscribe(res => {
         console.log("watch POSITION --> ", res)
         this.center.lat = res.coords.latitude;
@@ -73,8 +79,11 @@ export class MapComponent implements AfterViewInit {
         this.deleteMarker(this.location);
         this.markers = this.markers.filter(a => a.title !== 'location')
         this.markers.push(this.location);
+        this.configService.saveData(this.markers)
+        //write Data
 
       });
+    });
     
   }
 
@@ -112,6 +121,8 @@ export class MapComponent implements AfterViewInit {
         
       })
       this.markers.push(marker);
+      this.configService.saveData(this.markers)
+      //write Data
     }
   }
 
@@ -134,11 +145,15 @@ export class MapComponent implements AfterViewInit {
           console.log("directions request -> ", this.directionsRequest?.destination);
           console.log("marker position", this.selectedMarker!.getPosition()?.toJSON())
           
-          if ((this.directionsRequest?.destination as any)['lat'] === this.selectedMarker!.getPosition()?.toJSON().lat &&
-              (this.directionsRequest?.destination as any)['lng'] === this.selectedMarker!.getPosition()?.toJSON().lng) {
-            this.exitNavigation();
+          if (this.directionsResults !== undefined) {
+            if ((this.directionsRequest?.destination as any)!['lat'] === this.selectedMarker!.getPosition()?.toJSON()!.lat &&
+                (this.directionsRequest?.destination as any)!['lng'] === this.selectedMarker!.getPosition()?.toJSON()!.lng) {
+              this.exitNavigation();
+            }
           }
           this.markers.splice(dlt, 1);
+          this.configService.saveData(this.markers)
+          //write Data
         }
           console.log("Indice = -1");
       }

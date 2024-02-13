@@ -14,6 +14,7 @@ import { MatButtonModule} from '@angular/material/button';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { NavSideBarComponent } from './components/nav-side-bar/nav-side-bar.component';
 import { GeoLocationService } from './services/geo-location.service';
+import { ConfigService } from './services/config.service';
 
 const Material_Imports = [
   MatToolbarModule,
@@ -36,7 +37,7 @@ const Material_Imports = [
     NoopAnimationsModule,
     Material_Imports
   ],
-  providers: [GeoLocationService],
+  providers: [GeoLocationService, ConfigService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
